@@ -1,0 +1,11 @@
+id_socio,apellido,nombre,dni,fecha_nacimiento,localidad,calle,numero,telefono,email
+1,Perez,Juan,40123456,1995-03-10,San Justo,Mitre,123,1122334455,juan.perez@test.com
+2,Gomez,Ana,38987654,1998-07-22,Ramos Mejia,Rivadavia,456,1122334456,ana.gomez@test.com
+3,Lopez,Carlos,37111222,1992-11-05,Isidro Casanova,Sarmiento,789,1122334457,carlos.lopez@test.com
+4,Fernandez,Lucia,42123456,2000-01-18,Gregorio de Laferrere,Belgrano,321,1122334458,lucia.fernandez@test.com
+5,Martinez,Diego,39888777,1994-06-30,La Tablada,San Martin,654,1122334459,diego.martinez@test.com
+6,Ramirez,Valeria,41222333,1997-09-14,Tapiales,Urquiza,987,1122334460,valeria.ramirez@test.com
+7,Sosa,Miguel,36555444,1991-12-03,Villa Madero,Alvear,147,1122334461,miguel.sosa@test.com
+8,Diaz,Carla,43222111,2001-05-25,Lomas del Mirador,Lavalle,258,1122334462,carla.diaz@test.com
+9,Vega,Nicolas,37888999,1993-08-19,Ciudad Evita,Independencia,369,1122334463,nicolas.vega@test.com
+10,Rojas,Mariana,40119988,1996-02-11,Virrey del Pino,España,159,1122334464,mariana.rojas@test.com

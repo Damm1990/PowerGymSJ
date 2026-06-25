@@ -1,0 +1,11 @@
+id_contacto,id_socio,nombre,telefono,relacion
+1,1,Maria Perez,1123001101,madre
+2,2,Jorge Gomez,1123001102,padre
+3,3,Silvia Lopez,1123001103,madre
+4,4,Roberto Fernandez,1123001104,padre
+5,5,Laura Martinez,1123001105,pareja
+6,6,Carlos Ramirez,1123001106,padre
+7,7,Ana Sosa,1123001107,esposa
+8,8,Miguel Diaz,1123001108,padre
+9,9,Paula Vega,1123001109,hermana
+10,10,Diego Rojas,1123001110,amigo

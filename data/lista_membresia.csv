@@ -1,0 +1,11 @@
+id_membresia,id_socio,id_plan,estado,observaciones,fecha_alta,fecha_vencimiento
+1,1,1,activo,Alta inicial,2026-01-01,2026-02-01
+2,2,2,activo,Pago en tiempo,2026-01-05,2026-02-05
+3,3,3,activo,Plan premium completo,2026-01-10,2026-02-10
+4,4,1,activo,Sin novedades,2026-01-12,2026-02-12
+5,5,2,vencido,No renovó a tiempo,2025-12-01,2026-01-01
+6,6,1,activo,Alta reciente,2026-01-15,2026-02-15
+7,7,3,activo,Acceso total activo,2026-01-18,2026-02-18
+8,8,2,activo,Sin observaciones,2026-01-20,2026-02-20
+9,9,1,vencido,Sin pago registrado,2025-12-15,2026-01-15
+10,10,3,activo,Premium activo,2026-01-22,2026-02-22
