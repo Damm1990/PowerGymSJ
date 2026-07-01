@@ -128,7 +128,7 @@ Se utilizó IA (ChatGPT) para:
 - Depurar problemas de estado (`setErrores`, validaciones y flujos async)
 - Proponer mejores prácticas de UX en formularios largos
 
-La IA funcionó como asistente de desarrollo para acelerar iteraciones y debugging.
+La IA funcionó como asistente de desarrollo para acelerar iteraciones y debugging de manera exitosa.
 
 ---
 
