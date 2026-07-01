@@ -35,7 +35,7 @@ Representa a los miembros del gimnasio.
 - dni
 - fecha_nacimiento
 - localidad
-- cp
+- codigo_postal (se modificó de cp a este para mayor claridad)
 - calle
 - numero
 - telefono

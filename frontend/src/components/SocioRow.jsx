@@ -1,4 +1,4 @@
-function SocioRow({ socio, onDesactivate, onReactivate }) {
+function SocioRow({ socio, onDesactivate, onReactivate, onEdit, onPrint }) {
   return (
     <tr>
       <td>{socio.apellido}</td>
@@ -9,19 +9,19 @@ function SocioRow({ socio, onDesactivate, onReactivate }) {
 
       <td>
         <div className="actions">
-        <button className="btn-primary" onClick={() => console.log("Ver:", socio.id_socio)}>
-          Imprimir ficha
-        </button>
+        <button className="btn-primary" onClick={() => onPrint(socio)}>
+  Imprimir ficha
+</button>
 
-        <button className="btn-warning" onClick={() => console.log("Editar:", socio.id_socio)}>
-          Editar
+        <button className="btn-warning" onClick={() => onEdit(socio)}>
+        Editar
         </button>
 
 
 
         {socio.estado === "activo" && (
           <button className="btn-danger" onClick={() => onDesactivate(socio.id_socio)}>
-            Desactivar
+            Dar de baja
           </button>
         )}
 
