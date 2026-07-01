@@ -1,41 +1,63 @@
-# Sistema de Gestión de Gimnasio
+# 🏋️ Sistema de Gestión de Gimnasio
 
-## 📌 Día 1 - Diseño de Base de Datos y Modelado (Supabase)
-
-Este proyecto corresponde a un challenge técnico de desarrollo web.  
-En esta primera etapa se realizó el diseño completo de la base de datos utilizando Supabase, definiendo entidades, relaciones y carga inicial de datos.
+Sistema completo para la gestión de socios, planes y membresías de un gimnasio.  
+Incluye backend con Supabase y frontend en React con validaciones por pasos.
 
 ---
 
-## 🧱 Descripción del Proyecto
+## 📌 ¿De qué trata el proyecto?
 
-El sistema permite gestionar socios de un gimnasio, sus planes de suscripción, membresías y contactos de emergencia.
+Este proyecto es un sistema de administración para gimnasios que permite:
 
-El objetivo es construir una base sólida y escalable que luego será integrada con un frontend en React.
+- Registrar socios con datos personales completos
+- Gestionar contactos de emergencia
+- Asignar planes de suscripción
+- Crear membresías activas por socio
+- Validar datos en tiempo real durante la carga
+- Evitar duplicados (ej: DNI repetido)
+
+El flujo de alta de socio se divide en **3 pasos guiados**, lo que mejora la experiencia del usuario y reduce errores.
+
+---
+
+## 🧱 Arquitectura del sistema
+
+El proyecto está dividido en dos capas principales:
+
+### 🔹 Frontend (React)
+- Componentes reutilizables (`SocioFields`, `ContactoFields`, `PlanSelector`)
+- Formularios multi-step
+- Validaciones en tiempo real
+- Manejo de estado con `useState` y `useEffect`
+
+### 🔹 Backend (Supabase)
+- Base de datos PostgreSQL
+- API automática REST
+- Manejo de relaciones entre tablas
+- Validaciones a nivel aplicación (no DB constraints complejos en MVP)
 
 ---
 
 ## 🛠️ Tecnologías utilizadas
 
-- Supabase (PostgreSQL)
-- SQL / Importación de CSV
-- Diseño de bases de datos relacionales
+- React (Vite)
+- JavaScript (ES6+)
+- Supabase (PostgreSQL + API REST)
+- HTML + CSS modular
+- Git / GitHub
 
 ---
 
-## 🧩 Modelo de Base de Datos
+## 🧩 Modelo de datos
 
 ### 🧍 Socio
-Representa a los miembros del gimnasio.
-
-**Campos:**
 - id_socio (PK)
 - apellido
 - nombre
 - dni
 - fecha_nacimiento
 - localidad
-- codigo_postal (se modificó de cp a este para mayor claridad)
+- codigo_postal
 - calle
 - numero
 - telefono
@@ -43,12 +65,9 @@ Representa a los miembros del gimnasio.
 
 ---
 
-### 🚨 Contacto de Emergencia
-Representa el contacto de emergencia de cada socio (relación 1:1).
-
-**Campos:**
+### 🚨 Contacto de emergencia
 - id_contacto (PK)
-- id_socio (FK → socio.id_socio)
+- id_socio (FK)
 - nombre
 - telefono
 - relacion
@@ -56,94 +75,66 @@ Representa el contacto de emergencia de cada socio (relación 1:1).
 ---
 
 ### 🏋️ Plan
-Define los planes de suscripción del gimnasio.
-
-**Campos:**
 - id_plan (PK)
 - nombre
 - descripcion
-- precio (numeric)
+- precio
 
-**Planes creados:**
-- BÁSICO (25.000)
-- STANDARD (30.000)
-- PREMIUM (80.000)
+Planes:
+- Básico
+- Standard
+- Premium
 
 ---
 
 ### 📄 Membresía
-Entidad central que vincula socios con planes.
-
-**Campos:**
 - id_membresia (PK)
-- id_socio (FK → socio.id_socio)
-- id_plan (FK → plan.id_plan)
+- id_socio (FK)
+- id_plan (FK)
 - estado (activo / vencido)
 - observaciones
-- fecha_alta (date)
-- fecha_vencimiento (date)
+- fecha_alta
+- fecha_de_baja *(a futuro)*
 
 ---
 
 ## 🔗 Relaciones
 
-- Socio → Contacto de Emergencia (1:1)
-- Socio → Membresía (conceptualmente 1:N, actualmente 1 activa por socio)
+- Socio → Contacto (1:1)
+- Socio → Membresía (1:N conceptual)
 - Plan → Membresía (1:N)
 
 ---
 
-## 📊 Carga de datos inicial
+## 🧠 Decisiones técnicas
 
-Se cargaron datos de prueba mediante archivos CSV:
-
-- 10 socios con datos realistas (La Matanza, Argentina)
-- 10 contactos de emergencia vinculados
-- 10 membresías con estado activo y vencido
-
-- 3 planes de gimnasio (cargados manualmente por ser breves)
-
----
-
-## 🧠 Decisiones de diseño
-
-- Uso de `text` en lugar de enums para mayor flexibilidad
-- Uso de `numeric` para precios evitando errores de precisión
-- Fechas almacenadas como `date` (no se requiere hora)
-- Modelo simplificado para MVP sin complejidad innecesaria
-- Estructura preparada para integración con React
+- Formulario dividido en 3 pasos para mejor UX
+- Validaciones separadas por etapa (`validateStep1`, `validateStep2`, `validateStep3`)
+- Validación de DNI duplicado contra Supabase
+- Manejo de errores en tiempo real
+- Componentes reutilizables para escalabilidad
+- Separación clara entre UI y lógica de validación
 
 ---
 
-## 📊 Diagrama de Base de Datos
+## 🤖 Uso de Inteligencia Artificial
 
-El diseño de la base de datos se encuentra en la carpeta `/docs/database`.
+Se utilizó IA (ChatGPT) para:
 
-Incluye todas las entidades, relaciones y claves del sistema.
+- Diseñar la arquitectura del formulario multi-step
+- Optimizar la lógica de validación por etapas
+- Corregir errores de integración con Supabase
+- Mejorar la estructura de componentes React
+- Depurar problemas de estado (`setErrores`, validaciones y flujos async)
+- Proponer mejores prácticas de UX en formularios largos
 
----
-
-## ⚙️ Configuración en Supabase
-
-- Creación de tablas mediante Table Editor
-- Definición de claves primarias
-- Configuración de claves foráneas (FK)
-- Importación masiva de datos mediante CSV
+La IA funcionó como asistente de desarrollo para acelerar iteraciones y debugging.
 
 ---
 
-## 🚀 Próximos pasos
+## ⚙️ Cómo instalar y correr el proyecto
 
-- Integración con frontend en React
-- Implementación de login de usuarios
-- Pantallas de gestión de socios
-- Visualización de membresías y planes
-
----
-
-## 📅 Estado del proyecto
-
-✔ Diseño de base de datos completado  
-✔ Relaciones definidas  
-✔ Datos iniciales cargados  
-⏳ Desarrollo del frontend pendiente
+### 1. Clonar el repositorio
+```bash
+git clone https://github.com/Damm1990/PowerGymSJ.git
+cd gym-system

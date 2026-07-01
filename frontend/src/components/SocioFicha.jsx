@@ -44,8 +44,8 @@ function SocioFicha({ socio, contacto, membresia, plan }) {
       {/* MEMBRESÍA */}
       <h3>Membresía</h3>
       <p><b>Estado:</b> {membresia?.estado}</p>
-      <p><b>Alta:</b> {formatDate(membresia?.fecha_alta)}</p>
-      <p><b>Vencimiento:</b> {formatDate(membresia?.fecha_vencimiento)}</p>
+      <p><b>Fecha de Alta:</b> {formatDate(membresia?.fecha_alta)}</p>
+      <p><b>Fecha de baja:</b> {formatDate(membresia?.fecha_de_baja)}</p>
 
     </div>
   );

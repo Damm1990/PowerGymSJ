@@ -39,6 +39,26 @@ body {
 
 /* ================= TYPO ================= */
 
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  gap: 10px;
+}
+
+.home h1 {
+  font-size: 28px;
+}
+
+.home p {
+  max-width: 400px;
+  opacity: 0.8;
+}
+
+
 h1, h2 {
   font-family: var(--heading);
   font-weight: 500;
@@ -95,6 +115,8 @@ button:active {
   display: flex;
   gap: 8px;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 /* ================= BOTONES COLOREADOS ================= */
@@ -240,59 +262,65 @@ button:active {
 /* ================= IMPRESIÓN ================= */
 
 @media print {
-
-.print-logo {
-    width: 120px;
-    margin-bottom: 10px;
-  }
-body * {
-    visibility: hidden;
+  /* ocultar todo */
+  body * {
+    visibility: hidden !important;
   }
 
+  /* mostrar solo ficha */
   .print-area,
   .print-area * {
-    visibility: visible;
+    visibility: visible !important;
   }
 
+  /* posicionar impresión correctamente */
   .print-area {
     position: absolute;
     left: 0;
     top: 0;
     width: 95%;
     padding: 20px;
+    background: white;
+    color: black;
   }
 
-  .ficha-grid {
+  /* logo */
+  .print-logo {
+    width: 120px;
+    margin-bottom: 10px;
+  }
+
+  /* títulos de ficha */
+  .ficha-socio h3 {
+    border: 1px solid black;
+    padding: 4px;
+    margin: 16px 0 8px;
+  }
+
+  /* grids de impresión */
+  .ficha-grid,
+  .socio-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px 30px;
+    gap: 10px 20px;
   }
 
-  .ficha-box {
+  /* texto compacto */
+  .print-area p {
+    margin: 2px 0;
     font-size: 14px;
   }
 
-  .ficha-header {
-    text-align: center;
-    margin-bottom: 20px;
+  /* ocultar elementos innecesarios */
+  button,
+  .filters,
+  .actions,
+  nav {
+    display: none !important;
   }
 }
 
-.socio-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-.print-area p {
-    margin: 2px 0; /* esto es lo clave */
-  }
-
-  .ficha-socio h3 {
-  border: 1px solid #000;
-  padding-bottom: 4px;
-  margin-top: 16px;
-  margin-bottom: 8px;
-}
+/* ================= BARRA DE BÚSQUEDA ================= */
 
 .search-bar {
   margin-top: 15px;
@@ -342,4 +370,54 @@ button.active {
   background: #343746;
   border-color: var(--accent);
   box-shadow: 0 0 12px rgba(192, 132, 252, 0.6);
+}
+
+.limit-filter {
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.limit-label {
+  color: var(--text-h);
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.limit-select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #1f2028;
+  color: var(--text-h);
+  cursor: pointer;
+  outline: none;
+  transition: 0.2s;
+}
+
+.limit-select:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(192, 132, 252, 0.25);
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.5);
+}
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  min-width: 300px;
+}
+
+.error {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  display: block;
 }

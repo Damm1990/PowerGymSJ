@@ -1,38 +1,26 @@
-function SocioRow({ socio, onDesactivate, onReactivate, onEdit, onPrint }) {
+import { useNavigate } from "react-router-dom";
+
+function SocioRow({ socio }) {
+
+  const navigate = useNavigate();
+
   return (
     <tr>
+      <td>{socio.id_socio}</td>
       <td>{socio.apellido}</td>
       <td>{socio.nombre}</td>
       <td>{socio.dni}</td>
       <td>{socio.telefono}</td>
       <td>{socio.email}</td>
 
-      <td>
-        <div className="actions">
-        <button className="btn-primary" onClick={() => onPrint(socio)}>
-  Imprimir ficha
-</button>
-
-        <button className="btn-warning" onClick={() => onEdit(socio)}>
-        Editar
-        </button>
-
-
-
-        {socio.estado === "activo" && (
-          <button className="btn-danger" onClick={() => onDesactivate(socio.id_socio)}>
-            Dar de baja
-          </button>
-        )}
-
-        {socio.estado === "inactivo" && (
-          <button className="btn-success" onClick={() => onReactivate(socio.id_socio)}>
-            Reactivar
-          </button>
-        )}
-
-        </div>
-      </td>
+     <td>
+  <button
+    className="btn-primary"
+    onClick={() => navigate(`/socios/${socio.id_socio}`)}
+  >
+    Seleccionar
+  </button>
+</td>
     </tr>
   );
 }

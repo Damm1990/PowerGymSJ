@@ -5,6 +5,12 @@ import SocioFields from "./SocioFields";
 import ContactoFields from "./ContactoFields";
 import PlanSelector from "./PlanSelector";
 
+import {
+  validateStep1,
+  validateStep2,
+  validateStep3
+} from "../utils/validators";
+
 function SocioCreateForm({ onClose, onSaved }) {
   const [step, setStep] = useState(1);
   const [planes, setPlanes] = useState([]);
@@ -28,8 +34,23 @@ function SocioCreateForm({ onClose, onSaved }) {
     id_plan: null
   });
 
+  const [errores, setErrores] = useState({});
+  const [dniDuplicado, setDniDuplicado] = useState("");
+
   // =========================
-  // CARGA DE PLANES
+  // VALIDACIONES POR PASO
+  // =========================
+  const errorsStep1 = validateStep1(form);
+  const errorsStep2 = validateStep2(form);
+  const errorsStep3 = validateStep3(form);
+
+  const errorsStep1Final = {
+    ...errorsStep1,
+    ...(dniDuplicado ? { dni: dniDuplicado } : {})
+  };
+
+  // =========================
+  // CARGA PLANES
   // =========================
   useEffect(() => {
     const fetchPlanes = async () => {
@@ -45,6 +66,28 @@ function SocioCreateForm({ onClose, onSaved }) {
   }, []);
 
   // =========================
+  // VALIDAR DNI DUPLICADO (REALTIME)
+  // =========================
+  useEffect(() => {
+    const checkDni = async () => {
+      if (!form.dni) return;
+
+      const { data, error } = await supabase
+        .from("socio")
+        .select("id_socio")
+        .eq("dni", form.dni);
+
+      if (error) return;
+
+      setDniDuplicado(
+        data?.length ? "Ya existe un socio con ese DNI." : ""
+      );
+    };
+
+    checkDni();
+  }, [form.dni]);
+
+  // =========================
   // HANDLE CHANGE
   // =========================
   const handleChange = (field, value) => {
@@ -58,6 +101,18 @@ function SocioCreateForm({ onClose, onSaved }) {
   // GUARDAR
   // =========================
   const handleSave = async () => {
+    const errors = validateStep1(form);
+
+    if (dniDuplicado) {
+      errors.dni = dniDuplicado;
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setErrores(errors);
+      return;
+    }
+
+    // 1. Insert socio
     const { data: socio, error } = await supabase
       .from("socio")
       .insert([
@@ -84,6 +139,7 @@ function SocioCreateForm({ onClose, onSaved }) {
 
     const id_socio = socio.id_socio;
 
+    // 2. contacto emergencia
     await supabase.from("contacto_emergencia").insert([
       {
         id_socio,
@@ -93,6 +149,7 @@ function SocioCreateForm({ onClose, onSaved }) {
       }
     ]);
 
+    // 3. membresía
     const plan = planes.find((p) => p.id_plan === form.id_plan);
 
     const fechaAlta = new Date();
@@ -106,7 +163,7 @@ function SocioCreateForm({ onClose, onSaved }) {
         estado: "activo",
         observaciones: plan?.nombre || "",
         fecha_alta: fechaAlta,
-        fecha_vencimiento: fechaVencimiento
+        fecha_de_baja: null
       }
     ]);
 
@@ -115,53 +172,38 @@ function SocioCreateForm({ onClose, onSaved }) {
   };
 
   // =========================
-  // SUBTÍTULO
+  // UI
   // =========================
-  const getSubtitle = () => {
-    switch (step) {
-      case 1:
-        return "Datos del socio";
-      case 2:
-        return "Contacto de emergencia";
-      case 3:
-        return "Planes disponibles";
-      default:
-        return "";
-    }
-  };
-
   return (
     <div className="form-container">
 
       <h2>Nuevo Socio</h2>
-      <h4 className="form-subtitle">{getSubtitle()}</h4>
 
-      {/* ================= PASO 1 ================= */}
-
+      {/* ================= STEP 1 ================= */}
       {step === 1 && (
         <>
           <SocioFields
             form={form}
             handleChange={handleChange}
+            errors={errorsStep1Final}
           />
 
           <div className="form-actions">
-            <button onClick={() => setStep(2)}>
+            <button
+              onClick={() => setStep(2)}
+              disabled={Object.keys(errorsStep1Final).length > 0}
+            >
               Siguiente
             </button>
 
-            <button
-              className="btn-danger"
-              onClick={onClose}
-            >
+            <button className="btn-danger" onClick={onClose}>
               Cancelar
             </button>
           </div>
         </>
       )}
 
-      {/* ================= PASO 2 ================= */}
-
+      {/* ================= STEP 2 ================= */}
       {step === 2 && (
         <>
           <ContactoFields
@@ -174,22 +216,21 @@ function SocioCreateForm({ onClose, onSaved }) {
               Atrás
             </button>
 
-            <button onClick={() => setStep(3)}>
+            <button
+              onClick={() => setStep(3)}
+              disabled={Object.keys(errorsStep2).length > 0}
+            >
               Siguiente
             </button>
 
-            <button
-              className="btn-danger"
-              onClick={onClose}
-            >
+            <button className="btn-danger" onClick={onClose}>
               Cancelar
             </button>
           </div>
         </>
       )}
 
-      {/* ================= PASO 3 ================= */}
-
+      {/* ================= STEP 3 ================= */}
       {step === 3 && (
         <>
           <PlanSelector
@@ -206,21 +247,17 @@ function SocioCreateForm({ onClose, onSaved }) {
             <button
               className="btn-success"
               onClick={handleSave}
-              disabled={!form.id_plan}
+              disabled={Object.keys(errorsStep3).length > 0}
             >
               Guardar
             </button>
 
-            <button
-              className="btn-danger"
-              onClick={onClose}
-            >
+            <button className="btn-danger" onClick={onClose}>
               Cancelar
             </button>
           </div>
         </>
       )}
-
     </div>
   );
 }

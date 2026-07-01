@@ -4,6 +4,13 @@ import { supabase } from "../services/supabaseClient";
 import SocioFields from "./SocioFields";
 import ContactoFields from "./ContactoFields";
 import PlanSelector from "./PlanSelector";
+import logo from "../assets/logoPowerGymSJ.png";
+
+import {
+  validateStep1,
+  validateStep2,
+  validateStep3
+} from "../utils/validators";
 
 function SocioEditForm({
   socioSeleccionado,
@@ -11,8 +18,9 @@ function SocioEditForm({
   onClose,
   onSaved
 }) {
-
   const [planes, setPlanes] = useState([]);
+  const [errores, setErrores] = useState({});
+  const [dniDuplicado, setDniDuplicado] = useState("");
 
   const [form, setForm] = useState({
     apellido: "",
@@ -33,13 +41,30 @@ function SocioEditForm({
     id_plan: null
   });
 
-  // ==========================
-  // CARGAR PLANES
-  // ==========================
+  // =========================
+  // VALIDACIONES POR SECCIÓN
+  // =========================
+  const errorsStep1 = validateStep1(form);
+  const errorsStep2 = validateStep2(form);
+  const errorsStep3 = validateStep3(form);
 
+  const errorsStep1Final = {
+    ...errorsStep1,
+    ...(dniDuplicado ? { dni: dniDuplicado } : {})
+  };
+
+  const isDisabled =
+    modoEdicion === "socio"
+      ? Object.keys(errorsStep1Final).length > 0
+      : modoEdicion === "contacto"
+      ? Object.keys(errorsStep2).length > 0
+      : Object.keys(errorsStep3).length > 0;
+
+  // =========================
+  // CARGAR PLANES
+  // =========================
   useEffect(() => {
     const fetchPlanes = async () => {
-
       const { data } = await supabase
         .from("plan")
         .select("*")
@@ -51,31 +76,25 @@ function SocioEditForm({
     fetchPlanes();
   }, []);
 
-  // ==========================
-  // CARGAR DATOS DEL SOCIO
-  // ==========================
-
+  // =========================
+  // CARGAR DATOS SOCIO
+  // =========================
   useEffect(() => {
-
     if (!socioSeleccionado) return;
 
     const loadData = async () => {
-
-      // socio
       const { data: socio } = await supabase
         .from("socio")
         .select("*")
         .eq("id_socio", socioSeleccionado.id_socio)
         .single();
 
-      // contacto
       const { data: contacto } = await supabase
         .from("contacto_emergencia")
         .select("*")
         .eq("id_socio", socioSeleccionado.id_socio)
         .maybeSingle();
 
-      // membresía
       const { data: membresia } = await supabase
         .from("membresia")
         .select("*")
@@ -83,7 +102,6 @@ function SocioEditForm({
         .maybeSingle();
 
       setForm({
-
         apellido: socio.apellido || "",
         nombre: socio.nombre || "",
         dni: socio.dni || "",
@@ -100,39 +118,81 @@ function SocioEditForm({
         contacto_relacion: contacto?.relacion || "",
 
         id_plan: membresia?.id_plan || null
-
       });
-
     };
 
     loadData();
-
   }, [socioSeleccionado]);
 
-  // ==========================
+  // =========================
+  // VALIDAR DNI DUPLICADO (solo edit socio)
+  // =========================
+  useEffect(() => {
+    const checkDni = async () => {
+      if (modoEdicion !== "socio") return;
+      if (!form.dni) return;
+
+      const { data } = await supabase
+        .from("socio")
+        .select("id_socio")
+        .eq("dni", form.dni);
+
+      // ignorar el propio socio
+      const filtered = data?.filter(
+        (d) => d.id_socio !== socioSeleccionado.id_socio
+      );
+
+      setDniDuplicado(
+        filtered?.length ? "Ya existe un socio con ese DNI." : ""
+      );
+    };
+
+    checkDni();
+  }, [form.dni, modoEdicion]);
+
+  // =========================
   // HANDLE CHANGE
-  // ==========================
-
+  // =========================
   const handleChange = (campo, valor) => {
-
     setForm((prev) => ({
       ...prev,
       [campo]: valor
     }));
 
+    setErrores((prev) => ({
+      ...prev,
+      [campo]: ""
+    }));
   };
 
-    // ==========================
+  // =========================
   // GUARDAR CAMBIOS
-  // ==========================
-
+  // =========================
   const handleUpdate = async () => {
     const id = socioSeleccionado.id_socio;
 
-    // --------------------------
-    // DATOS DEL SOCIO
-    // --------------------------
+    // VALIDACIÓN FINAL
+    const errors =
+      modoEdicion === "socio"
+        ? validateStep1(form)
+        : modoEdicion === "contacto"
+        ? validateStep2(form)
+        : validateStep3(form);
 
+    if (modoEdicion === "socio" && dniDuplicado) {
+      errors.dni = dniDuplicado;
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setErrores(errors);
+      return;
+    }
+
+    setErrores({});
+
+    // =========================
+    // UPDATE SOCIO
+    // =========================
     if (modoEdicion === "socio") {
       const { error } = await supabase
         .from("socio")
@@ -150,16 +210,12 @@ function SocioEditForm({
         })
         .eq("id_socio", id);
 
-      if (error) {
-        console.error(error);
-        return;
-      }
+      if (error) return console.error(error);
     }
 
-    // --------------------------
-    // CONTACTO
-    // --------------------------
-
+    // =========================
+    // UPDATE CONTACTO
+    // =========================
     if (modoEdicion === "contacto") {
       const { error } = await supabase
         .from("contacto_emergencia")
@@ -170,16 +226,12 @@ function SocioEditForm({
         })
         .eq("id_socio", id);
 
-      if (error) {
-        console.error(error);
-        return;
-      }
+      if (error) return console.error(error);
     }
 
-    // --------------------------
-    // PLAN
-    // --------------------------
-
+    // =========================
+    // UPDATE PLAN
+    // =========================
     if (modoEdicion === "plan") {
       const plan = planes.find(
         (p) => p.id_plan === form.id_plan
@@ -193,68 +245,44 @@ function SocioEditForm({
         })
         .eq("id_socio", id);
 
-      if (error) {
-        console.error(error);
-        return;
-      }
+      if (error) return console.error(error);
     }
 
     onSaved();
     onClose();
   };
 
-  // ==========================
-  // SUBTÍTULO
-  // ==========================
-
-  const getSubtitle = () => {
-    switch (modoEdicion) {
-      case "socio":
-        return "Datos del socio";
-
-      case "contacto":
-        return "Contacto de emergencia";
-
-      case "plan":
-        return "Plan / Membresía";
-
-      default:
-        return "";
-    }
-  };
-
-  // ==========================
-  // RENDER
-  // ==========================
-
+  // =========================
+  // UI
+  // =========================
   return (
     <div className="form-container">
+
+      <div className="app-header">
+        <img src={logo} alt="PowerGymSJ" className="logo" />
+        <h2>Socios</h2>
+      </div>
 
       <h2>Editar Socio</h2>
 
       <h4 className="form-subtitle">
-        {getSubtitle()}
+        {modoEdicion === "socio"
+          ? "Datos del socio"
+          : modoEdicion === "contacto"
+          ? "Contacto de emergencia"
+          : "Plan / Membresía"}
       </h4>
 
-            {/* ==========================
-          FORMULARIO SEGÚN SECCIÓN
-      ========================== */}
-
+      {/* ================= FORM ================= */}
       <div className="form-body">
-
-        {/* --------------------------
-            DATOS DEL SOCIO
-        -------------------------- */}
         {modoEdicion === "socio" && (
           <SocioFields
             form={form}
             handleChange={handleChange}
+            errors={errorsStep1Final}
           />
         )}
 
-        {/* --------------------------
-            CONTACTO
-        -------------------------- */}
         {modoEdicion === "contacto" && (
           <ContactoFields
             form={form}
@@ -262,9 +290,6 @@ function SocioEditForm({
           />
         )}
 
-        {/* --------------------------
-            PLAN
-        -------------------------- */}
         {modoEdicion === "plan" && (
           <PlanSelector
             planes={planes}
@@ -272,25 +297,19 @@ function SocioEditForm({
             handleChange={handleChange}
           />
         )}
-
       </div>
 
-      {/* ==========================
-          BOTONES
-      ========================== */}
-
+      {/* ================= BOTONES ================= */}
       <div className="form-actions">
 
-        <button
-          className="btn-danger"
-          onClick={onClose}
-        >
+        <button className="btn-danger" onClick={onClose}>
           Cancelar
         </button>
 
         <button
           className="btn-success"
           onClick={handleUpdate}
+          disabled={isDisabled}
         >
           Guardar cambios
         </button>
